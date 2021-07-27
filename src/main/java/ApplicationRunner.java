@@ -9,8 +9,8 @@ public class ApplicationRunner {
                     break;
                 }
             }
-        } catch (Exception e) {
-            // If Nimbus is not available, you can set the GUI to another look and feel.
+        } catch (Exception ignored) {
+
         }
         new TextEditor();
     }
