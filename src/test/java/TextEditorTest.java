@@ -36,7 +36,7 @@ public class TextEditorTest {
         window.cleanUp();
     }
 
-    @GUITest
+
     @Test
     public void testEnterText() {
         JTextComponentFixture textArea = window.textBox("textArea");

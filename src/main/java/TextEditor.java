@@ -1,10 +1,13 @@
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 
 public class TextEditor extends JFrame {
-    TextArea textArea = new TextArea();
+    RSyntaxTextArea textArea = new RSyntaxTextArea();
     JPanel topPanel = new JPanel();
     private final JCheckBox regexCheck = new JCheckBox("Use regex");
     private final JButton saveButton = new JButton("Save");
@@ -27,7 +30,10 @@ public class TextEditor extends JFrame {
         setSize(700, 700);
         setVisible(true);
 
+
+
         textArea.setName("textArea");
+        textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
 
 
 //        topPanel.setSize(500,100);
@@ -45,8 +51,10 @@ public class TextEditor extends JFrame {
 
 
         searchField.setName("SearchField");
+
         searchField.setSize(100,100);
         searchField.setPreferredSize(new Dimension(150,30));
+        searchField.putClientProperty("JComponent.roundRect",true);
 
 
         ImageIcon searchIcon = this.createImageIcon("search.png","Search Icon");
