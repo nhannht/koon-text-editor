@@ -1,0 +1,4 @@
+language: java
+before_install:
+  - mvn install -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+script: xvfb-run mvn package
