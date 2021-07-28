@@ -1,4 +1,6 @@
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.assertj.swing.annotation.GUITest;
 import org.assertj.swing.core.*;
 import org.assertj.swing.edt.FailOnThreadViolationRepaintManager;
@@ -36,15 +38,22 @@ public class TextEditorTest {
         window.cleanUp();
     }
 
+    @Test
+    public void testNormalEnterTestCase(){
+
+        JTextComponentFixture textArea = window.textBox("textArea");
+        String textCase = "A normal string";
+        textArea.enterText(textCase);
+        textArea.requireText(textCase);
+    }
 
     @Test
-    public void testEnterText() {
+    public void testEnterSuperLongTest() {
         JTextComponentFixture textArea = window.textBox("textArea");
-        String textCase = "This is a text";
-        textArea.enterText(textCase);
+        String textCase = RandomStringUtils.randomAlphabetic(1000000);
+        textArea.setText(textCase);
         textArea.requireEditable();
         textArea.requireText(textCase);
-
         textArea.deleteText();
         textArea.requireEmpty();
 

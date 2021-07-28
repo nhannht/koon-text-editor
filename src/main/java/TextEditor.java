@@ -1,15 +1,18 @@
 import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 public class TextEditor extends JFrame {
     RSyntaxTextArea textArea = new RSyntaxTextArea();
     JPanel topPanel = new JPanel();
-    private final JCheckBox regexCheck = new JCheckBox("Use regex");
+    private final JCheckBox regexCheckBox = new JCheckBox("Use regex");
     private final JButton saveButton = new JButton("Save");
     private final JButton loadButton = new JButton("Load");
     private final JTextField searchField = new JTextField();
@@ -23,6 +26,13 @@ public class TextEditor extends JFrame {
     private final JMenuItem menuSaveTab = new JMenuItem("Save");
     private final JMenuItem menuExitTab = new JMenuItem("Exit");
     private final JFileChooser jFileChooser = new JFileChooser(new File(System.getProperty("user.dir")));
+    Logger logger = LoggerFactory.getLogger(TextEditor.class);
+    private final JComboBox jComboBox;
+    /**
+     * This state track regex status or not
+     */
+    Boolean useRegex;
+
 
     public TextEditor() {
         super("Text Editor");
@@ -31,34 +41,49 @@ public class TextEditor extends JFrame {
         setVisible(true);
 
 
-
         textArea.setName("textArea");
-        textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_JAVA);
+        textArea.setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_MARKDOWN);
 
 
 //        topPanel.setSize(500,100);
         topPanel.setName("topPanel");
         topPanel.setLayout(new FlowLayout());
 
-        regexCheck.setName("UseRegExCheckbox");
+        regexCheckBox.setName("UseRegExCheckbox");
 
         saveButton.setName("SaveButton");
-        saveButton.setSize(100,100);
+        saveButton.setSize(100, 100);
 
 
         loadButton.setName("OpenButton");
-        loadButton.setSize(100,100);
+        loadButton.setSize(100, 100);
+        HashMap<String,String> syntaxMap = new HashMap<>();
+        syntaxMap.put("java",SyntaxConstants.SYNTAX_STYLE_JAVA);
+        syntaxMap.put("markdown",SyntaxConstants.SYNTAX_STYLE_MARKDOWN);
+        syntaxMap.put("python",SyntaxConstants.SYNTAX_STYLE_PYTHON);
+        syntaxMap.put("unix",SyntaxConstants.SYNTAX_STYLE_UNIX_SHELL);
+        syntaxMap.put("javascript",SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
 
+        jComboBox = new JComboBox(syntaxMap.keySet().toArray());
+        jComboBox.setEditable(false);
+        textArea.setSyntaxEditingStyle(syntaxMap.keySet().toArray()[0].toString());
+        jComboBox.addActionListener(e -> {
+            Object item = jComboBox.getSelectedItem();
+            LogicAdapter.changeLanguageMode(textArea, syntaxMap.get(item));
+            logger.error("Syntax set to " + item.toString());
+        });
+
+        topPanel.add(jComboBox);
 
         searchField.setName("SearchField");
 
-        searchField.setSize(100,100);
-        searchField.setPreferredSize(new Dimension(150,30));
-        searchField.putClientProperty("JComponent.roundRect",true);
+        searchField.setSize(100, 100);
+        searchField.setPreferredSize(new Dimension(150, 30));
+        searchField.putClientProperty("JComponent.roundRect", true);
 
 
-        ImageIcon searchIcon = this.createImageIcon("search.png","Search Icon");
-        searchIcon = this.scaleImage(searchIcon,20,20);
+        ImageIcon searchIcon = this.createImageIcon("search.png", "Search Icon");
+        searchIcon = this.scaleImage(searchIcon, 20, 20);
         searchButton.setName("StartSearchButton");
         searchButton.setIcon(searchIcon);
 
@@ -69,7 +94,7 @@ public class TextEditor extends JFrame {
         topPanel.add(loadButton);
         topPanel.add(searchField);
         topPanel.add(searchButton);
-        topPanel.add(regexCheck);
+        topPanel.add(regexCheckBox);
         topPanel.add(prevSearchButton);
         topPanel.add(nextSearchButton);
 
@@ -86,9 +111,8 @@ public class TextEditor extends JFrame {
 
         jFileChooser.setName("FileChooser");
         jFileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        jFileChooser.setPreferredSize(new Dimension(0,0));
+        jFileChooser.setPreferredSize(new Dimension(0, 0));
         jFileChooser.setVisible(false);
-
 
 
         jMenuBar.add(jMenuTabFile);
@@ -115,48 +139,47 @@ public class TextEditor extends JFrame {
         searchBar.add(menuUseRegexI);
 
 
-
         setJMenuBar(jMenuBar);
         add(jFileChooser);
-        add(topPanel,BorderLayout.NORTH);
+        add(topPanel, BorderLayout.NORTH);
         getContentPane().add(jScrollPane);
 
-        regexCheck.addChangeListener(e ->
+        regexCheckBox.addChangeListener(e ->
         {
-            if (regexCheck.isSelected()) Model.useRegex = true;
-            else Model.useRegex = false;
-            System.out.println(Model.useRegex);
+            if (regexCheckBox.isSelected()) useRegex = true;
+            else useRegex = false;
+            System.out.println(useRegex);
         });
 
 
         menuUseRegexI.addActionListener(e -> {
-            if (regexCheck.isSelected()) regexCheck.setSelected(false);
-            else regexCheck.setSelected(true);
+            if (regexCheckBox.isSelected()) regexCheckBox.setSelected(false);
+            else regexCheckBox.setSelected(true);
         });
 
-        loadButton.addActionListener(e->{
+        loadButton.addActionListener(e -> {
             String c = null;
             try {
-                c = Controller.loadFile(jFileChooser);
+                c = LogicAdapter.loadFile(jFileChooser);
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
             textArea.setText(c);
         });
 
-        saveButton.addActionListener(e ->{
+        saveButton.addActionListener(e -> {
             String content = textArea.getText();
             try {
-                Controller.saveFile(content, jFileChooser);
+                LogicAdapter.saveFile(content, jFileChooser);
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
         });
 
-        menuLoadTab.addActionListener(e ->{
+        menuLoadTab.addActionListener(e -> {
             String c = null;
             try {
-                c = Controller.loadFile(jFileChooser);
+                c = LogicAdapter.loadFile(jFileChooser);
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
@@ -166,52 +189,53 @@ public class TextEditor extends JFrame {
         menuSaveTab.addActionListener(e -> {
             String content = textArea.getText();
             try {
-                Controller.saveFile(content, jFileChooser);
+                LogicAdapter.saveFile(content, jFileChooser);
             } catch (IOException ioException) {
                 ioException.printStackTrace();
             }
         });
 
-        menuExitTab.addActionListener(e -> Controller.quit(this));
+        menuExitTab.addActionListener(e -> LogicAdapter.quit(this));
 
         searchButton.addActionListener(e -> {
-            Controller.search(textArea, searchField.getText(),Model.useRegex);
+            LogicAdapter.search(textArea, searchField.getText(), useRegex);
         });
 
         menuStartSearchI.addActionListener(e -> {
-            Controller.search(textArea, searchField.getText(),Model.useRegex);
+            LogicAdapter.search(textArea, searchField.getText(), useRegex);
         });
 
         nextSearchButton.addActionListener(e -> {
-            Controller.nextMatch(textArea);
+            LogicAdapter.nextMatch(textArea);
         });
 
         menuNextMatchI.addActionListener(e -> {
-            Controller.nextMatch(textArea);
+            LogicAdapter.nextMatch(textArea);
         });
 
         prevSearchButton.addActionListener(e -> {
-            Controller.prevMatch(textArea);
+            LogicAdapter.prevMatch(textArea);
         });
 
 
         menuPrevMatchI.addActionListener(e -> {
-            Controller.prevMatch(textArea);
+            LogicAdapter.prevMatch(textArea);
         });
     }
+
     protected ImageIcon createImageIcon(String path,
                                         String description) {
         java.net.URL imgURL = getClass().getResource(path);
         if (imgURL != null) {
-            return  new ImageIcon(imgURL, description);
+            return new ImageIcon(imgURL, description);
         } else {
             System.err.println("Couldn't find file: " + path);
             return null;
         }
     }
 
-    public ImageIcon scaleImage(ImageIcon icon,Integer width,Integer height){
-        return new ImageIcon(icon.getImage().getScaledInstance(width,height,java.awt.Image.SCALE_SMOOTH));
+    public ImageIcon scaleImage(ImageIcon icon, Integer width, Integer height) {
+        return new ImageIcon(icon.getImage().getScaledInstance(width, height, java.awt.Image.SCALE_SMOOTH));
     }
 
 }

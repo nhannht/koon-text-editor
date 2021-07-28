@@ -1,7 +1,10 @@
+import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.swing.*;
+import javax.swing.plaf.synth.SynthConstants;
 import java.awt.*;
 import java.io.*;
 import java.nio.file.Files;
@@ -10,7 +13,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class Controller {
+public class LogicAdapter {
     /**
      * index array of founded search string
      */
@@ -38,8 +41,15 @@ public class Controller {
      */
     private static Logger logger = LoggerFactory.getLogger("Controller log");
 
-    public Controller(Model model) {
+    public static String changeLanguageMode(RSyntaxTextArea textArea, String syntaxConstants) {
+        try {
+            textArea.setSyntaxEditingStyle(syntaxConstants);
+        } catch (Exception e) {
+            logger.error(e.toString());
+        }
+        return syntaxConstants;
     }
+
 
     public static String loadFile(JFileChooser fileChooser) throws IOException {
         fileChooser.setVisible(true);
@@ -75,7 +85,6 @@ public class Controller {
     }
 
     /**
-     *
      * @param jTextArea
      * @param pattern
      * @param regex
@@ -101,7 +110,7 @@ public class Controller {
                 stringsSearch.add(matcher.group());
             }
             logger.debug("Current possitions of searched string is " + indexArray);
-            logger.debug("Current search String is " +  stringsSearch);
+            logger.debug("Current search String is " + stringsSearch);
         }
         if (indexArray.size() != 0) {
             setCursor(indexArray.get(currentIndex), stringsSearch.get(currentIndex), jTextArea);
@@ -111,7 +120,6 @@ public class Controller {
             }
         }
         logger.debug("Current index is " + currentIndex);
-
 
 
     }
