@@ -50,34 +50,32 @@ public class TextEditorTest {
 
     }
 
-    @GUITest
-    @Test
-    public void testLoadFunction() {
-        JButtonFixture loadButton = window.button("OpenButton");
-        JTextComponentFixture textArea = window.textBox("textArea");
-        loadButton.click();
-        Robot robot = window.robot();
-
-        JFileChooserFixture jFileChooserFixture = new JFileChooserFixture(robot, "FileChooser");
-
-        final String filePath = "src/main/resources/";
-        jFileChooserFixture.setCurrentDirectory(new File(filePath));
-        final String fileName = "patrol.txt";
-        jFileChooserFixture.selectFile(new File(fileName));
-        jFileChooserFixture.approve();
-        File file = new File(filePath + fileName);
-        try {
-            String expect = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
-            textArea.requireText(expect);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-    @GUITest
-    @Test
-    public void testSearch(){}
-
-
+//    @GUITest
+//    @Test
+//    public void testLoadFunction() {
+//        JButtonFixture loadButton = window.button("OpenButton");
+//        JTextComponentFixture textArea = window.textBox("textArea");
+//        loadButton.click();
+//        Robot robot = window.robot();
+//
+//        JFileChooserFixture jFileChooserFixture = new JFileChooserFixture(robot, "FileChooser");
+//
+//        final String filePath = "src/main/resources/";
+//        jFileChooserFixture.setCurrentDirectory(new File(filePath));
+//        final String fileName = "patrol.txt";
+//        jFileChooserFixture.selectFile(new File(fileName));
+//        jFileChooserFixture.approve();
+//        File file = new File(filePath + fileName);
+//        try {
+//            String expect = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
+//            textArea.requireText(expect);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
+//    @GUITest
+//    @Test
+//    public void testSearch(){}
 
 }
